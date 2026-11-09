@@ -34,7 +34,10 @@ Change All**. Installation does not forcibly replace another viewer's defaults.
   the desktop user's Downloads folder. Archive folders before transferring.
 - Audio auto-detection and CoreAudio modules are bundled. Actual playback,
   microphone capture and USB forwarding have not been validated against a guest.
-- Original `.vv` files are retained; a private temporary copy is opened.
+- A private temporary copy of each `.vv` is opened. After the viewer process
+  starts, the original is moved to Trash. Launch failures or a changed source
+  leave it in place; connection/authentication failures after launch do not
+  restore it. You can recover a file from Trash.
 - Logs in `~/Library/Logs/RemoteViewer/`, with connection passwords and Proxmox
   tickets removed. Treat logs as potentially containing hostnames and diagnostics.
 
@@ -56,6 +59,7 @@ sudo port install gtk3 spice-gtk virt-viewer libepoxy meson ninja pkgconfig \
 python3 scripts/build-quartz-local.py
 python3 scripts/package.py --sdk build/sdk/install
 python3 scripts/collect_sources.py
+python3 scripts/test_cleanup.py
 python3 scripts/finalize.py
 python3 scripts/verify_bundle.py
 ```

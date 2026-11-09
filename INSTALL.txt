@@ -1,4 +1,4 @@
-Remote Viewer for macOS — 11.0-macos.2
+Remote Viewer for macOS — 11.0-macos.3
 
 Requirements: Apple Silicon (arm64), macOS 27.2 or later.
 This release does not support Intel Macs or older macOS versions.
@@ -25,7 +25,10 @@ verified against a live audio-enabled guest. Microphone forwarding may need
 macOS permission. Automatic USB device forwarding has not been validated.
 
 Logs: ~/Library/Logs/RemoteViewer/
-The launcher retains the original .vv file and opens a private temporary copy.
+The launcher opens a private temporary copy and moves the original .vv file
+to Trash after the viewer process starts. If launch fails or the source changes,
+the original stays in place. Failed connections do not restore trashed files;
+you can recover them from Trash.
 Connection passwords and Proxmox tickets are removed from the saved log.
 
 This package is a community distribution of virt-viewer, not an official

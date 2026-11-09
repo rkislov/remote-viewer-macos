@@ -9,6 +9,8 @@ final class Session {
     let directory: URL
     let secrets: [String]
     var pending = Data()
+    var originalFile: URL?
+    var originalContents: Data?
 
     init(file: String?) throws {
         let fm = FileManager.default
@@ -25,7 +27,14 @@ final class Session {
         var sensitive: [String] = []
         if let file = file {
             let source = URL(fileURLWithPath: file)
-            let content = try String(contentsOf: source, encoding: .utf8)
+            let data = try Data(contentsOf: source)
+            guard let content = String(data: data, encoding: .utf8) else {
+                throw NSError(domain: "RemoteViewer", code: 2, userInfo: [NSLocalizedDescriptionKey: "Файл подключения не является текстом UTF-8."])
+            }
+            if source.pathExtension.lowercased() == "vv" {
+                originalFile = source
+                originalContents = data
+            }
             for line in content.components(separatedBy: .newlines) {
                 let pair = line.split(separator: "=", maxSplits: 1, omittingEmptySubsequences: false)
                 if pair.count == 2, ["password", "host", "ca"].contains(pair[0].trimmingCharacters(in: .whitespaces).lowercased()) {
@@ -34,7 +43,7 @@ final class Session {
                 }
             }
             let copy = directory.appendingPathComponent("connection.vv")
-            try fm.copyItem(at: source, to: copy)
+            try data.write(to: copy, options: .withoutOverwriting)
             try fm.setAttributes([.posixPermissions: 0o600], ofItemAtPath: copy.path)
             args.append(copy.path)
         }
@@ -100,8 +109,28 @@ final class Session {
         return result
     }
 
+    func trashOpenedOriginal() {
+        guard let source = originalFile, let contents = originalContents else { return }
+        originalFile = nil
+        originalContents = nil
+        let fm = FileManager.default
+        // Leave a newly replaced download at the same path untouched.
+        guard (try? Data(contentsOf: source)) == contents else {
+            try? log.write(contentsOf: Data("Original .vv retained: file changed or disappeared.\n".utf8))
+            return
+        }
+        do {
+            try fm.trashItem(at: source, resultingItemURL: nil)
+            try? log.write(contentsOf: Data("Original .vv moved to Trash after viewer launch.\n".utf8))
+        } catch {
+            // A read-only volume or Trash failure must not prevent the connection.
+            try? log.write(contentsOf: Data("Original .vv retained: unable to move to Trash.\n".utf8))
+        }
+    }
+
     func run(done: @escaping () -> Void) throws {
         try process.run()
+        trashOpenedOriginal()
         DispatchQueue.global(qos: .utility).async {
             // Keep incomplete lines together so secrets split across reads are also removed.
             while true {

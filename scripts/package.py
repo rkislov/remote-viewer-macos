@@ -13,8 +13,8 @@ import sqlite3
 import subprocess
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-VERSION = '11.0.2'
-TAG = '11.0-macos.2'
+VERSION = '11.0.3'
+TAG = '11.0-macos.3'
 parser = argparse.ArgumentParser()
 parser.add_argument('--sdk', type=pathlib.Path, default=pathlib.Path.home() / 'Library/Application Support/RemoteViewerQuartz/install')
 args = parser.parse_args()

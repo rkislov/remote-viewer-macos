@@ -11,7 +11,7 @@ import tarfile
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 DIST = ROOT / 'dist'
 APP = DIST / 'stage/Remote Viewer.app'
-VERSION = '11.0-macos.2'
+VERSION = '11.0-macos.3'
 def run(*args): subprocess.run([str(a) for a in args],check=True)
 
 license_dir = APP / 'Contents/Resources/Licenses'
@@ -25,7 +25,7 @@ run('/usr/bin/codesign','--force','--sign','-','--timestamp=none',APP)
 run('/usr/bin/codesign','--verify','--deep','--strict',APP)
 base = 'Remote-Viewer-' + VERSION + '-macOS-arm64'
 run('/usr/bin/pkgbuild','--root',DIST / 'stage','--identifier','io.github.rkislov.remote-viewer-macos',
-    '--version','11.0.2','--install-location','/Applications',DIST / (base + '.pkg'))
+    '--version','11.0.3','--install-location','/Applications',DIST / (base + '.pkg'))
 dmgroot = DIST / 'dmg-root'
 if dmgroot.exists(): shutil.rmtree(dmgroot)
 dmgroot.mkdir()

@@ -1,0 +1,33 @@
+Remote Viewer for macOS — 11.0-macos.1
+
+Requirements: Apple Silicon (arm64), macOS 27.2 or later.
+This release does not support Intel Macs or older macOS versions.
+
+Install with the PKG, or drag Remote Viewer.app from the DMG to Applications.
+MacPorts, Homebrew, and an X11/XQuartz server are not required.
+
+This community build is ad-hoc signed, not Developer ID signed or notarized.
+macOS may block the first launch. If so, use System Settings > Privacy &
+Security > Open Anyway after verifying the download and its SHA256 checksum.
+Do not disable Gatekeeper globally.
+
+Right-click a fresh .vv file > Open With > Remote Viewer.
+To make this the default: Get Info on a .vv file > Open with > Remote Viewer
+> Change All. The installer does not forcibly change your file associations.
+
+Text clipboard and host-to-guest file drop require the SPICE agent inside
+the virtual machine. Drop a file from Finder onto the connected guest display.
+Linux guests normally save transferred files in the desktop user's Downloads.
+Folders should be archived first. Guest-to-host file drop is not supported.
+
+Audio modules are included; playback/microphone forwarding has not been
+verified against a live audio-enabled guest. Microphone forwarding may need
+macOS permission. Automatic USB device forwarding has not been validated.
+
+Logs: ~/Library/Logs/RemoteViewer/
+The launcher retains the original .vv file and opens a private temporary copy.
+Connection passwords and Proxmox tickets are removed from the saved log.
+
+This package is a community distribution of virt-viewer, not an official
+release from the virt-viewer or SPICE projects. See the included license
+notices and the corresponding-source archive supplied with the release.

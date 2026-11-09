@@ -1,0 +1,7 @@
+Generated with the built-in image_gen tool on 2026-11-09.
+Transparent background requested; the alpha channel is retained in icon.png.
+RemoteViewer.icns contains the standard macOS icon sizes generated using sips
+and iconutil. The original upstream icon is retained separately as virt-viewer.icns.
+
+Final prompt:
+Use case: stylized-concept. Asset type: production macOS application icon for a community app called Remote Viewer, which opens remote virtual-machine screens and transfers files using SPICE. Create one exceptional polished icon, square 1024x1024 composition, transparent outside the icon. A beautifully proportioned macOS rounded-square tile inset with standard comfortable icon padding. Deep midnight indigo enamel tile with rich cobalt-to-violet luminous depth, subtle rounded bevels, refined soft studio light. In its center, a single clean sculpted silver desktop monitor with rounded corners, a luminous cyan-to-indigo glass screen containing a second smaller offset translucent desktop window suggesting remote virtualization. A small elegant curved cyan connection stroke integrates the two screen layers. Modern tactile macOS app icon, premium industrial design, simple recognizable silhouette, strong legibility at 32px, restrained precise dimensionality. Front-facing mostly straight-on. Crisp clean edges, balanced large centered glyph. No text, no letters, no logos, no watermark, no busy circuitry, no excessive neon glow, no cursor or unrelated badges. Genuine alpha transparency around the rounded-square tile.

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import os, pathlib, subprocess, urllib.request, tarfile, hashlib, shutil, sys
 
 repo = pathlib.Path(__file__).resolve().parents[1]

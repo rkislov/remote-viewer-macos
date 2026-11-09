@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Audit all bundled dependencies, deployment versions, signatures and loader caches."""
 import json
 import os

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Collect exact MacPorts source distributions, patches, provenance and notices."""
 import concurrent.futures
 import hashlib

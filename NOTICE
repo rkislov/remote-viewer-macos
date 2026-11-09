@@ -1,0 +1,14 @@
+Remote Viewer macOS packaging
+Copyright 2026 rkislov
+
+The original Swift launcher, packaging scripts, project documentation, and
+generated application artwork in this repository are licensed under the
+Apache License, Version 2.0.
+
+This is a community distribution containing independently licensed upstream
+software. Apache-2.0 does not replace the licenses of virt-viewer, GTK,
+SPICE-GTK, MacPorts Portfiles/patches, the original upstream icon, or other
+bundled components. See THIRD_PARTY_NOTICES.md and the included license texts.
+
+Upstream project names are used to identify their components. This package
+is not endorsed by those projects.

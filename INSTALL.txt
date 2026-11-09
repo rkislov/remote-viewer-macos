@@ -1,4 +1,4 @@
-Remote Viewer for macOS — 11.0-macos.1
+Remote Viewer for macOS — 11.0-macos.2
 
 Requirements: Apple Silicon (arm64), macOS 27.2 or later.
 This release does not support Intel Macs or older macOS versions.

@@ -4,8 +4,11 @@ This is a community macOS distribution of **virt-viewer 11.0**, built on
 **GTK 3.24.52 with the Quartz backend** and **SPICE-GTK 0.43**.
 It is not an official release of the upstream projects.
 
-The launcher and packaging code in this repository is licensed under
-GPL-2.0-or-later. Upstream code retains its original copyright and license.
+The original launcher, packaging code, project documentation, and generated
+application artwork in this repository are licensed under **Apache-2.0**.
+See the root LICENSE and NOTICE. This grant excludes upstream software,
+the original upstream icon, and vendored MacPorts files. Upstream code
+retains its original copyright and license.
 The upstream virt-viewer application and icon are GPL-2.0-or-later;
 GTK and SPICE-GTK are LGPL licensed. Other bundled components include
 GStreamer, GLib, Cairo, Pango, FreeType, HarfBuzz, OpenSSL, libxml2, and
@@ -36,5 +39,5 @@ The certificate authority bundle originates from curl's Mozilla CA extract;
 its source provenance is included with the corresponding sources.
 
 The new application artwork is generated with image_gen and included under
-the project license. Its original raster and generation prompt are in `assets/`.
+Apache-2.0. Its original raster and generation prompt are in `assets/`.
 The unmodified upstream icon is retained separately as `assets/virt-viewer.icns`.

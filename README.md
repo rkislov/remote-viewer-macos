@@ -80,8 +80,15 @@ clean Mac is still recommended before broader deployment.
 
 ## Licensing and provenance
 
-GPL-2.0-or-later for this launcher/packaging code and upstream virt-viewer;
-bundled components retain their respective licenses. See
+The original Swift launcher, packaging scripts, project documentation, and
+generated application artwork are licensed under **Apache License 2.0**.
+See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+This is a distribution of independently licensed components, not an
+Apache-only application. Upstream **virt-viewer remains GPL-2.0-or-later**;
+GTK, SPICE-GTK and other bundled libraries retain their respective licenses.
+The original upstream icon and vendored MacPorts files are also excluded
+from the Apache-2.0 grant. See
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), the application's `Licenses`
 directory, and the **corresponding-source archive** in the matching release.
 

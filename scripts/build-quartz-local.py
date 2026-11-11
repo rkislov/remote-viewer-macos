@@ -69,10 +69,16 @@ build(epoxy, ['-Dx11=false', '-Dglx=no', '-Degl=no', '-Dtests=false', '-Ddocs=fa
 
 gtk = source('gtk3', 'https://download.gnome.org/sources/gtk/3.24/gtk-3.24.52.tar.xz', '80931fa472a77b9a164f6740e3c0b444fac6770054632d35a7ff9d679e5e7b9f')
 patches(gtk, 'gnome/gtk3', ['patch-quartz-calayer-contentsformat.diff', 'patch-quartz-meson-appleframeworks.diff', 'patch-tests-gdkgears.diff', 'patch-sincos.diff', 'patch-focus.patch', 'patch-focus-2.patch'])
+if not (gtk / '.quartz-clipboard-patched').exists():
+    run(['/usr/bin/patch', '-p0', '-i', repo / 'patches/gtk-quartz-clipboard.patch'], cwd=gtk)
+    (gtk / '.quartz-clipboard-patched').touch()
 build(gtk, ['-Dx11_backend=false', '-Dquartz_backend=true', '-Dwayland_backend=false', '-Dbroadway_backend=false', '-Dxinerama=no', '-Dtests=false', '-Dgtk_doc=false', '-Dman=false', '-Dintrospection=false', '-Ddemos=false', '-Dexamples=false', '-Dprofiler=false'])
 
 spice = source('spice-gtk', 'https://www.spice-space.org/download/gtk/spice-gtk-0.43.tar.xz', 'cee26e5b2d22909f35b40a94398d1e863ca3962ee46494ca97aab206abc3203b')
 patches(spice, 'gnome/spice-gtk', ['patch-keymap-gen.diff', 'patch-src-channel-display.diff'])
+if not (spice / '.quartz-clipboard-patched').exists():
+    run(['/usr/bin/patch', '-p0', '-i', repo / 'patches/spice-quartz-clipboard.patch'], cwd=spice)
+    (spice / '.quartz-clipboard-patched').touch()
 version_script = spice / 'build-aux/git-version-gen'
 version_script.write_text(version_script.read_text().replace('test -f $tarball_version_file', 'test -f "$tarball_version_file"').replace('cat $tarball_version_file', 'cat "$tarball_version_file"'))
 keymap = spice / 'subprojects/keycodemapdb/tools/keymap-gen'

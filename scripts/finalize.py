@@ -11,7 +11,7 @@ import tarfile
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 DIST = ROOT / 'dist'
 APP = DIST / 'stage/Remote Viewer.app'
-VERSION = '11.0-macos.3'
+VERSION = '11.0-macos.4'
 def run(*args): subprocess.run([str(a) for a in args],check=True)
 
 license_dir = APP / 'Contents/Resources/Licenses'
@@ -25,7 +25,7 @@ run('/usr/bin/codesign','--force','--sign','-','--timestamp=none',APP)
 run('/usr/bin/codesign','--verify','--deep','--strict',APP)
 base = 'Remote-Viewer-' + VERSION + '-macOS-arm64'
 run('/usr/bin/pkgbuild','--root',DIST / 'stage','--identifier','io.github.rkislov.remote-viewer-macos',
-    '--version','11.0.3','--install-location','/Applications',DIST / (base + '.pkg'))
+    '--version','11.0.4','--install-location','/Applications',DIST / (base + '.pkg'))
 dmgroot = DIST / 'dmg-root'
 if dmgroot.exists(): shutil.rmtree(dmgroot)
 dmgroot.mkdir()
@@ -38,7 +38,7 @@ run('/usr/bin/hdiutil','create','-volname','Remote Viewer','-srcfolder',dmgroot,
 run('/usr/bin/ditto','-c','-k','--sequesterRsrc','--keepParent',APP,DIST / (base + '.zip'))
 source_name = 'Remote-Viewer-' + VERSION + '-corresponding-source'
 source_tree = ROOT / 'build/corresponding-source'
-for name in ['src','scripts','patches','assets','licenses']:
+for name in ['src','scripts','patches','assets','licenses','tests']:
     shutil.copytree(ROOT / name,source_tree / 'packaging' / name,dirs_exist_ok=True,
                     ignore=shutil.ignore_patterns('__pycache__'))
 for name in ['README.md','LICENSE','NOTICE','THIRD_PARTY_NOTICES.md','INSTALL.txt']:

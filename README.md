@@ -59,8 +59,8 @@ sudo port install gtk3 spice-gtk virt-viewer libepoxy meson ninja pkgconfig \
 python3 scripts/build-quartz-local.py
 python3 scripts/package.py --sdk build/sdk/install
 python3 scripts/collect_sources.py
-python3 scripts/test_cleanup.py
 python3 scripts/finalize.py
+python3 scripts/test_cleanup.py
 python3 scripts/verify_bundle.py
 ```
 

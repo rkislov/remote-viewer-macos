@@ -1,0 +1,166 @@
+--- src/spice-gtk-session.c
++++ src/spice-gtk-session.c
+@@ -64,6 +64,9 @@
+     gboolean                clip_hasdata[CLIPBOARD_LAST];
+     gboolean                clip_grabbed[CLIPBOARD_LAST];
+     gboolean                clipboard_by_guest[CLIPBOARD_LAST];
++#ifdef GDK_WINDOWING_QUARTZ
++    gboolean                quartz_text_requested;
++#endif
+     guint                   clipboard_release_delay[CLIPBOARD_LAST];
+     /* TODO: maybe add a way of restoring this? */
+     GHashTable              *cb_shared_files;
+@@ -773,6 +776,10 @@
+     }
+ 
+     s->clipboard_by_guest[selection] = FALSE;
++#ifdef GDK_WINDOWING_QUARTZ
++    if (selection == VD_AGENT_CLIPBOARD_SELECTION_CLIPBOARD)
++        s->quartz_text_requested = FALSE;
++#endif
+ 
+ #ifdef GDK_WINDOWING_X11
+     if (!event->owner && GDK_IS_X11_DISPLAY(gdk_display_get_default())) {
+@@ -908,6 +915,75 @@
+     /* We watch for clipboard ownership changes and act on those, so we
+        don't need to do anything here */
+ }
++
++#ifdef GDK_WINDOWING_QUARTZ
++static gboolean quartz_request_guest_text(SpiceGtkSession *self, guint selection)
++{
++    SpiceGtkSessionPrivate *s = self->priv;
++    guint i;
++
++    if (!s->main || selection != VD_AGENT_CLIPBOARD_SELECTION_CLIPBOARD)
++        return FALSE;
++
++    for (i = 0; i < s->nclip_targets[selection]; i++) {
++        guint info = s->clip_targets[selection][i].info;
++        if (atom2agent[info].vdagent != VD_AGENT_CLIPBOARD_UTF8_TEXT)
++            continue;
++
++        /* NSPasteboard can ask for data from inside the native event loop.
++         * Fetch text before declaring ownership so the provider never needs
++         * to wait for the guest in a nested GLib main loop. */
++        s->quartz_text_requested = TRUE;
++        spice_main_channel_clipboard_selection_request(s->main, selection,
++                                                        VD_AGENT_CLIPBOARD_UTF8_TEXT);
++        return TRUE;
++    }
++
++    return FALSE;
++}
++
++static void quartz_clipboard_get_text(GtkClipboard *clipboard,
++                                     GtkSelectionData *selection_data,
++                                     guint info, gpointer user_data)
++{
++    const gchar *text = g_object_get_data(G_OBJECT(user_data), "spice-quartz-clipboard-text");
++    if (text)
++        gtk_selection_data_set_text(selection_data, text, -1);
++}
++
++static void quartz_guest_text_received(SpiceMainChannel *main, guint selection,
++                                       guint type, const guchar *data, guint size,
++                                       gpointer user_data)
++{
++    SpiceGtkSession *self = SPICE_GTK_SESSION(user_data);
++    SpiceGtkSessionPrivate *s = self->priv;
++    GtkTargetEntry target = { "UTF8_STRING", 0, 0 };
++    gchar *text;
++
++    if (main != s->main || selection != VD_AGENT_CLIPBOARD_SELECTION_CLIPBOARD ||
++        !s->quartz_text_requested || read_only(self) ||
++        type != VD_AGENT_CLIPBOARD_UTF8_TEXT || !data || size > G_MAXINT)
++        return;
++
++    if (size && data[size - 1] == '\0')
++        size--;
++    if (!g_utf8_validate((const gchar *)data, size, NULL))
++        return;
++
++    if (spice_main_channel_agent_test_capability(main, VD_AGENT_CAP_GUEST_LINEEND_CRLF))
++        text = spice_dos2unix((const gchar *)data, size);
++    else
++        text = g_strndup((const gchar *)data, size);
++
++    g_object_set_data_full(G_OBJECT(self), "spice-quartz-clipboard-text", text, g_free);
++    if (gtk_clipboard_set_with_owner(s->clipboard, &target, 1,
++                                     quartz_clipboard_get_text, clipboard_clear,
++                                     G_OBJECT(self))) {
++        s->clipboard_by_guest[selection] = TRUE;
++        s->clip_hasdata[selection] = FALSE;
++    }
++}
++#endif
+ 
+ static gboolean clipboard_grab(SpiceMainChannel *main, guint selection,
+                                guint32* types, guint32 ntypes,
+@@ -950,6 +1026,10 @@
+     g_free(s->clip_targets[selection]);
+     s->nclip_targets[selection] = num_targets;
+     s->clip_targets[selection] = g_memdup(targets, sizeof(GtkTargetEntry) * num_targets);
++#ifdef GDK_WINDOWING_QUARTZ
++    if (selection == VD_AGENT_CLIPBOARD_SELECTION_CLIPBOARD)
++        s->quartz_text_requested = FALSE;
++#endif
+     /* Receiving a grab implies we've released our own grab */
+     s->clip_grabbed[selection] = FALSE;
+ 
+@@ -958,6 +1038,11 @@
+         s->nclip_targets[selection] == 0) {
+         return TRUE;
+     }
++
++#ifdef GDK_WINDOWING_QUARTZ
++    if (quartz_request_guest_text(self, selection))
++        return TRUE;
++#endif
+ 
+     if (!gtk_clipboard_set_with_owner(cb,
+                                       targets,
+@@ -1492,6 +1577,10 @@
+     g_return_if_fail(clipboard != NULL);
+ 
+     s->nclip_targets[selection] = 0;
++#ifdef GDK_WINDOWING_QUARTZ
++    if (selection == VD_AGENT_CLIPBOARD_SELECTION_CLIPBOARD)
++        s->quartz_text_requested = FALSE;
++#endif
+ 
+     if (!s->clipboard_by_guest[selection])
+         return;
+@@ -1564,6 +1653,10 @@
+     if (SPICE_IS_MAIN_CHANNEL(channel)) {
+         SPICE_DEBUG("Changing main channel from %p to %p", s->main, channel);
+         s->main = SPICE_MAIN_CHANNEL(channel);
++#ifdef GDK_WINDOWING_QUARTZ
++        g_signal_connect_object(channel, "main-clipboard-selection",
++                                G_CALLBACK(quartz_guest_text_received), self, 0);
++#endif
+         g_signal_connect(channel, "main-clipboard-selection-grab",
+                          G_CALLBACK(clipboard_grab), self);
+         g_signal_connect(channel, "main-clipboard-selection-request",
+@@ -1589,6 +1682,9 @@
+ 
+     if (SPICE_IS_MAIN_CHANNEL(channel) && SPICE_MAIN_CHANNEL(channel) == s->main) {
+         s->main = NULL;
++#ifdef GDK_WINDOWING_QUARTZ
++        s->quartz_text_requested = FALSE;
++#endif
+         for (i = 0; i < CLIPBOARD_LAST; ++i) {
+             if (s->clipboard_by_guest[i]) {
+                 GtkClipboard *cb = get_clipboard_from_selection(s, i);
+@@ -1725,6 +1821,11 @@
+         return;
+     }
+ 
++#ifdef GDK_WINDOWING_QUARTZ
++    if (quartz_request_guest_text(self, selection))
++        return;
++#endif
++
+     if (!gtk_clipboard_set_with_owner(s->clipboard, s->clip_targets[selection], s->nclip_targets[selection],
+                                       clipboard_get, clipboard_clear, G_OBJECT(self))) {
+         g_warning("Clipboard grab failed");
